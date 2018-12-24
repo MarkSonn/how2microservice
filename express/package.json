@@ -1,0 +1,15 @@
+{
+  "name": "express",
+  "version": "0.0.1",
+  "description": "Nice try, I'm not an English Major",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^4.16.4",
+    "node-fetch": "^2.3.0"
+  },
+  "scripts": {
+    "start": "nodemon server.js"
+  },
+  "author": "Mark Sonnenschein",
+  "license": "ISC"
+}
