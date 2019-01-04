@@ -4,7 +4,7 @@
 '''
 
 # Setup flask
-from flask import Flask, Response
+from flask import Flask, Response, request
 app = Flask(__name__)
 
 # Other imports
@@ -26,6 +26,11 @@ def batch():
     }
     return Response(json.dumps(data), status=200, mimetype='application/json')
 
+@app.route("/receive", methods=['POST'])
+def receive():
+    content = request.get_json()
+    print (content)
+    return Response() # flask must have a response object returned
 
 # Serve application
 if __name__ == '__main__':

@@ -12,7 +12,7 @@ const port = 3000
 
 // Other import(s)
 const fetch = require('node-fetch')
-
+const request = require('request')
 
 // Most basic route for reference
 app.get('/', (req, res) => res.send('Hello Express'))
@@ -24,8 +24,17 @@ app.get('/reconciliation', async (req, res, next) => {
     const json_batch = await raw_batch.json()
 
     delete json_batch['Mark']
-
-    res.send(json_batch)
+    var clientOptions = {
+      'uri': 'http://localhost:5000/receive',
+      'body': JSON.stringify(json_batch),
+      'method': 'POST',
+      'headers': {
+        'content-Type': 'application/json'
+      }
+    }
+    request(clientOptions);
+    res.send('Completed')
+    //res.send(json_batch)
   } catch(error) {
     console.log(`Error in GET /reconciliation: ${error}`)
   }
