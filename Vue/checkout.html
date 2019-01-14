@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href='https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons' rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify/dist/vuetify.js"></script>
+  <script src="https://unpkg.com/sonn@0.0.22/dist/sonn.min.js"></script>
+
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-content>
+
+        <!-- Site modifications title -->
+        <sonn_navbar color="primary lighten-1" title="Checkout Cheif">
+            <v-dialog
+              v-model="startOverModal"
+              width="500">
+              <v-btn
+                slot="activator"
+                color="red lighten-1"
+                dark>
+                Start Over
+              </v-btn>
+
+              <v-card>
+                <v-card-title
+                  class="headline grey lighten-2"
+                  primary-title>
+                  Start Over?
+                </v-card-title>
+
+                <v-card-text>
+                  Are you sure you want to clear all progress on this batch?
+                </v-card-text>
+
+                <v-divider></v-divider>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="red"
+                    flat
+                    @click="startOverModal = false">
+                    No
+                  </v-btn>
+                  <v-btn
+                    color="green"
+                    flat
+                    @click="startOverModal = false; getBatch()">
+                    Yes
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+
+            <v-dialog
+              v-model="submitModal"
+              width="500">
+              <v-btn
+                slot="activator"
+                color="green lighten-1"
+                dark>
+                Submit
+              </v-btn>
+
+              <v-card>
+                <v-card-title
+                  class="headline grey lighten-2"
+                  primary-title>
+                  Start Over?
+                </v-card-title>
+
+                <v-card-text>
+                  Are you sure you want to clear all progress on this batch?
+                </v-card-text>
+
+                <v-divider></v-divider>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    color="red"
+                    flat
+                    @click="submitModal = false">
+                    No
+                  </v-btn>
+                  <v-btn
+                    color="green"
+                    flat
+                    @click="submitModal = false; submitForm()">
+                    Yes
+                  </v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+
+            <!-- <v-btn @click="submitForm" color="green lighten-1">Done</v-btn> -->
+        </sonn_navbar>
+
+        <v-flex xs10 offset-xs1 sm6 offset-sm3 my-3>
+         <v-text-field
+           v-model='enteredItem'
+           autofocus
+           clearable
+           label="Item"
+           @keyup.enter="enterItem">
+         </v-text-field>
+        </v-flex>
+
+        <v-flex xs10 offset-xs1 sm8 offset-sm2 my-3>
+
+          <sonn_card>
+            <v-layout>
+              <v-switch v-model="checkboxLock" color="red" :label="checkboxLock ? 'User Changes Locked' : 'User Changes Unlocked'"></v-switch>
+              <v-switch v-model="showCompleted" color="green" :label="showCompleted ? 'Displaying All Items' : 'Displaying Incomplete Items'"></v-switch>
+            </v-layout>
+            <v-list
+              subheader
+              two-line>
+              <v-list-tile :disabled="checkboxLock" v-for='item in batch' :key='item.sku' v-if='showCompleted || (!item.isCheckedOut && !showCompleted)'>
+                <v-list-tile-action>
+                  <v-checkbox v-model="item.isCheckedOut"></v-checkbox>
+                </v-list-tile-action>
+
+
+                <v-list-tile-content @click="item.isCheckedOut = !item.isCheckedOut; enterItem(item.isCheckedOut)">
+                  <v-list-tile-title>{{ item.sku }}</v-list-tile-title>
+                  <!-- <v-list-tile-sub-title>Allow notifications</v-list-tile-sub-title> -->
+                </v-list-tile-content>
+              </v-list-tile>
+            </v-list>
+          </sonn_card>
+        </v-flex>
+
+      </v-content>
+    </v-app>
+  </div>
+
+  <script>
+
+    new Vue({
+      el: '#app',
+      data: {
+        batch: [],
+        enteredItem: '',
+        checkboxLock: true,
+        showCompleted: true,
+        startOverModal: false,
+        submitModal: false
+      },
+      mounted() {
+        this.getBatch()
+      },
+      methods: {
+        getBatch: function() {
+          axios
+          // .get('http://localhost:5000/batch')
+            .get('http://10.20.20.2/batch')
+            .then(response => (this.batch = response.data))
+            .catch(function (error) { console.log(error) })
+        },
+        playSound : function(success) {
+          // Find more here: http://www.findsounds.com/ISAPI/search.dll
+          if(success) {
+            sound = 'http://resources.schoolscience.co.uk/CDA/CD/files/sound/decorativelamp.mp3'
+            // http://www.utc.fr/si28/ProjetsUpload/P2006_si28p004/flash_puzzle/sons/rush/partyball2.wav
+          } else {
+            sound = 'http://www.qwizx.com/gssfx/usa/ff-strike.wav'
+            // http://www.superluigibros.com/downloads/sounds/SNES/SMRPG/wav/smrpg_wrong.wav
+            // http://wavcentral.com/sounds/televis/price_is_right/tpir-dings.mp3
+          }
+          var audio = new Audio(sound);
+          audio.play();
+        },
+        enterItem: function() {
+          const enteredItem = this.enteredItem
+          const batch = this.batch
+          var success = false
+          batch.forEach(item => {
+            if (item.sku == enteredItem && item.isCheckedOut != true) {
+              item.isCheckedOut = true;
+              this.playSound(true)
+              success = true
+            }
+          })
+          if (!success) this.playSound(false)
+          this.enteredItem = ''
+        },
+        submitForm: function() {
+          const reconciledBatch = this.batch.filter(item => item.isCheckedOut)
+          axios
+            // .post('http://localhost:5000/receive', reconciledBatch)
+            .post('http://10.20.20.2/receive', reconciledBatch)
+            .then(function (response) { console.log(response) })
+            .catch(function (error) { console.log(error) })
+        }
+      }
+    })
+  </script>
+
+</body>
+</html>

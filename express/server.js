@@ -23,7 +23,8 @@ app.get('/reconciliation', async (req, res, next) => {
     const raw_batch = await fetch('http://localhost:5000/batch')
     const json_batch = await raw_batch.json()
 
-    delete json_batch['Mark']
+    json_batch.splice(1, 1)
+
     var clientOptions = {
       'uri': 'http://localhost:5000/receive',
       'body': JSON.stringify(json_batch),
